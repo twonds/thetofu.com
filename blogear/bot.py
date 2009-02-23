@@ -3,8 +3,9 @@
 # Pubsub Client Bot - Listens to PEP notifications for new blog entries.
 #
 import time
+import datetime
 from twisted.internet import defer
-from twisted.words.xish import domish
+from twisted.words.xish import domish, xpath
 from wokkel.pubsub import PubSubClient, Item
 from wokkel import disco
 from twisted.words.protocols.jabber.jid import internJID
@@ -77,6 +78,12 @@ class Bot(PubSubClient):
 
         for item in items:
             item_id = item.getAttribute('id', str(time.time()))
+
+            date_pub = xpath.queryForNodes("/item/entry/published", item)
+            published = datetime.datetime.now()
+            if date_pub:
+                published = str(date_pub[0])
+        
 
     def getJid(self):
 	"""Return the JID the connection is authenticed as."""

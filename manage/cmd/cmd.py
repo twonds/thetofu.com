@@ -15,6 +15,7 @@ from wokkel import client
 
 from blogger import Blogger
 
+VERSION=0.1
 
 @defer.inlineCallbacks
 def createSearcher(domain, service, node, blog, debug=False):
@@ -28,3 +29,39 @@ def createSearcher(domain, service, node, blog, debug=False):
 
     yield client.clientCreator(factory)
 
+if __name__ == '__main__':
+    from optparse import OptionParser
+    parser = OptionParser(usage='%prog [options] blog_file', version=VERSION)
+
+    parser.add_option('-s', '--server', action='store', dest='server',
+                      help='XMPP Server we will connect to.')
+
+    parser.add_option('-p', '--pubsub', action='store', dest='pubsub',
+                      help='XMPP PubSub Search Service')
+
+    parser.add_option('-n', '--node', action='store', dest='node',
+                      help='Node to publish to')
+
+    parser.add_option('-d', '--debug', action='store', dest='debug',
+                      help='Show debug information.')
+
+
+    parser.set_defaults(server="localhost")
+    parser.set_defaults(pubsub="pubsub.localhost")
+    parser.set_defaults(node="blog")
+    parser.set_defaults(debug=False)
+
+    
+    options, args = parser.parse_args()
+    if len(args) != 2:
+        print parser.get_usage()
+    else:
+        log.startLogging(sys.stdout)
+
+        reactor.callWhenRunning(createSearcher,
+                                options.server,
+                                options.pubsub,
+                                options.node,
+                                args[1],
+                                options.debug)
+        reactor.run()
