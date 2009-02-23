@@ -1,6 +1,6 @@
 from twisted.python import log
-from twisted.internet import defer
-from twisted.words.xish import domish
+from twisted.internet import defer, reactor
+from twisted.words.xish import domish, xpath
 
 from wokkel.subprotocols import XMPPHandler
 from wokkel import xmppim, pubsub, data_form
@@ -11,6 +11,13 @@ class Blogger(pubsub.PubSubClient):
 
     author_name = None
     author_nick = None
+
+    options = [
+        data_form.Field(var='pubsub#persist_items',value='1'),
+        data_form.Field(var='pubsub#max_items',value='10'), #change this value later
+        ]
+    
+
 
     def __init__(self, service, node):
         self.service = service
@@ -44,6 +51,29 @@ class Blogger(pubsub.PubSubClient):
     def connectionInitialized(self):
         self.send(xmppim.AvailablePresence())
         
+        # gather and create blog
+        request = self._buildConfigureRequest('get')
+
+        node_configure = yield request.send(self.service).addErrback(lambda _: None)
+        
+        
+        do_create = True
+        if node_configure and node_configure.getAttribute('type') == 'result':
+            do_create = False
+            # check the configuration
+            node_persistence = xpath.queryForNodes(
+                "/x/field[@var='pubsub#persist_items']/value", 
+                node_configure.pubsub.configure.x)
+            if len(node_persistence)>0 and str(node_persistence[0]) == '0':
+                request = self._buildConfigureRequest(options=self.options)
+                
+                r = yield request.send(self.service)
+
+                
+        if do_create:
+            yield self.create()
+
+
         # open file to blog and publish it
         if self.blog:
             # grab author information
@@ -67,4 +97,72 @@ class Blogger(pubsub.PubSubClient):
             
             r = yield self.publish(self.service, self.node, [pubsub.Item(payload=atom)])
 
+            
+            reactor.stop()
+            
+
+    def _buildConfigureRequest(self, method='set', nodeIdentifier=None, options=[]):
+        if nodeIdentifier is None:
+            nodeIdentifier = self.node
+        request = pubsub._PubSubRequest(self.xmlstream, 
+                                 'configure', 
+                                 pubsub.NS_PUBSUB_OWNER, 
+                                 method=method)
+        request.command['node'] = nodeIdentifier
+        if options:
+            configure = data_form.Form('submit', 
+                                       fields=options,
+                                       formNamespace=pubsub.NS_PUBSUB+'#node_config')
+            
+            request.command.addChild(configure.toElement())
+            
+        return request
+
+    @defer.inlineCallbacks
+    def create(self, nodeIdentifier=None):
+        """
+        create the publish subscribe node 
         
+        NOTE: wokkel needs better configuration support 
+        """
+        if nodeIdentifier is None:
+            nodeIdentifier = self.node
+        result = yield self.createNode(self.service, nodeIdentifier, nodeType='flat')
+
+        
+        
+    def createNode(self, service, nodeIdentifier=None, nodeType=None):
+        """
+        Create a publish subscribe node.
+        
+        @param service: The publish subscribe service to create the node at.
+        @type service: L{JID}
+        @param nodeIdentifier: Optional suggestion for the id of the node.
+        @type nodeIdentifier: C{unicode}
+        """
+        
+
+        request = pubsub._PubSubRequest(self.xmlstream, 'create')
+        if nodeIdentifier:
+            request.command['node'] = nodeIdentifier
+        if nodeType:
+            request.command['type'] = nodeType
+        request.pubsub.addElement('configure')
+        configure = data_form.Form('submit', 
+                                   fields=self.options,
+                                   formNamespace=pubsub.NS_PUBSUB+'#node_config')
+        
+        request.pubsub.configure.addChild(configure.toElement())
+
+        
+        def cb(iq):
+            try:
+                new_node = iq.pubsub.create["node"]
+            except AttributeError:
+                # the suggested node identifier was accepted
+                new_node = nodeIdentifier
+            return new_node
+
+        return request.send(service).addCallback(cb)
+
+
