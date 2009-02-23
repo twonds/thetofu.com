@@ -1,3 +1,4 @@
+import os
 from twisted.python import log
 from twisted.internet import defer, reactor
 from twisted.words.xish import domish, xpath
@@ -13,6 +14,7 @@ class Blogger(pubsub.PubSubClient):
     author_nick = None
 
     options = [
+        data_form.Field(var='pubsub#presence_based_delivery',value='1'),
         data_form.Field(var='pubsub#persist_items',value='1'),
         data_form.Field(var='pubsub#max_items',value='10'), #change this value later
         ]
@@ -93,10 +95,14 @@ class Blogger(pubsub.PubSubClient):
             atom.addElement('generator', None, 'Twisted PubSuBlog')
             atom.addElement('title', None, subject)
             atom.addElement('content', None, body)
-            atom.addElement('id', None, self.node+':'+self.blog)
+            # clean up blog path
+            blog_id, prefix = os.path.basename(self.blog).split(".",1)
+            
+            atom.addElement('id', None, self.node+':'+blog_id)
             
             r = yield self.publish(self.service, self.node, [pubsub.Item(payload=atom)])
 
+            self.send(xmppim.UnavailablePresence())
             
             reactor.stop()
             
