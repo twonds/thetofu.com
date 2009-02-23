@@ -1,9 +1,10 @@
 # bot.py
 #
-# Pubsub Client Bot - Listens to PEP notifications for new blog entries.
+# Pubsub Client Bot - Listens to pubsub events for new blog entries.
 #
 import time
 import datetime
+from twisted.python import log
 from twisted.internet import defer
 from twisted.words.xish import domish, xpath
 from wokkel.pubsub import PubSubClient, Item
@@ -25,7 +26,7 @@ class PubSub2Blog(object):
     def template(self, file, vars):
         """ Very simple template for writing atom to templates.
         """
-        return open(templatedir.template, 'r').read() % vars
+        return open(self.path+'/'+file, 'r').read() % vars
 
 
     def atom2html(self, orig):
@@ -39,8 +40,8 @@ class PubSub2Blog(object):
         elif orig.title:
             content = orig.title
 
-
-	return orig
+        return template('entry.html', content=content)
+	
 
 
 class Bot(PubSubClient):
@@ -61,29 +62,43 @@ class Bot(PubSubClient):
         """When connection is establised send presence and subscribe to the node 
         that the bot is listening to. 
         """
-        p = AvailablePresence()
-        p.addElement('priority', None, '-1')
-        self.send(p)
+        self.send(AvailablePresence())
         
         self.subscribe(self.service, self.nodeIdentifier, self.getJid().userhostJID())
         
+        PubSubClient.connectionInitialized(self)
 
-    def rebuild(self):
-        """Gather all items and rebuild html.
-        """
 
-    def itemsReceived(self, items):
+    def itemsReceived(self, item_event):
         """Gather items, convert to html and send the files to there proper location.
         """
-
-        for item in items:
+        
+        for item in item_event.items:
+            if item.name != 'item': # TODO - handle retract and other events
+                continue
             item_id = item.getAttribute('id', str(time.time()))
 
             date_pub = xpath.queryForNodes("/item/entry/published", item)
             published = datetime.datetime.now()
             if date_pub:
                 published = str(date_pub[0])
-        
+
+            blog_id = None
+            blog_ids = xpath.queryForNodes("/item/entry/id", item)
+            if blog_ids:
+                blog_id = str(blog_ids[0])
+                
+            log.msg(blog_id)
+
+            # create entry
+            html = self.blog.atom2html(item.entry)
+            log.msg(html)
+            
+            # update index
+
+            # update rss
+
+
 
     def getJid(self):
 	"""Return the JID the connection is authenticed as."""
