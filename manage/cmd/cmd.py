@@ -18,20 +18,21 @@ from blogger import Blogger
 VERSION=0.1
 
 @defer.inlineCallbacks
-def createSearcher(domain, service, node, blog, debug=False):
+def createSearcher(domain, service, node, username, password, blog, debug=False):
     
-    factory = ClientFactory(jid.internJID(domain), None)
+    factory = client.DeferredClientFactory(jid.internJID(username), password)
     factory.streamManager.logTraffic = debug
 
-    searcher = Blogger(jid.internJID(service), node)
-    searcher.blog = blog
-    searcher.setHandlerParent(factory.streamManager)
+    blogger = Blogger(jid.internJID(service), node)
+    blogger.blog = blog
+    blogger.setHandlerParent(factory.streamManager)
 
     yield client.clientCreator(factory)
 
 if __name__ == '__main__':
     from optparse import OptionParser
-    parser = OptionParser(usage='%prog [options] blog_file', version=VERSION)
+    parser = OptionParser(usage='%prog [options] username password blog_file', version=VERSION)
+
 
     parser.add_option('-s', '--server', action='store', dest='server',
                       help='XMPP Server we will connect to.')
@@ -53,7 +54,8 @@ if __name__ == '__main__':
 
     
     options, args = parser.parse_args()
-    if len(args) != 2:
+
+    if len(args) != 3:
         print parser.get_usage()
     else:
         log.startLogging(sys.stdout)
@@ -62,6 +64,8 @@ if __name__ == '__main__':
                                 options.server,
                                 options.pubsub,
                                 options.node,
+                                args[0],
                                 args[1],
+                                args[2],
                                 options.debug)
         reactor.run()
