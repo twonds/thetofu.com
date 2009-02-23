@@ -33,14 +33,20 @@ class PubSub2Blog(object):
 	"""Return a sanitized Atom entry.
 	This method should be overridden.
 	"""
-        content = None
+        args = {}
 
         if orig.content:
-            content = orig.content
+            args['content'] = str(orig.content)
         elif orig.title:
-            content = orig.title
-
-        return template('entry.html', content=content)
+            args['content'] = str(orig.title)
+            
+        if orig.title:
+            args['title'] = str(orig.title)
+        elif oriq.id:
+            args['title'] = str(orig.id)
+        else:
+            args['title'] = 'No Title'
+        return self.template('entry.html', args)
 	
 
 
