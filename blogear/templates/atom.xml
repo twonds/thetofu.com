@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- If you are running a bot please visit this policy page outlining rules you must respect. http://www.livejournal.com/bots/ -->
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:lj="http://www.livejournal.com">
+  <id>urn:thetofu.com:atom1:thetofu</id>
+  <title>TheTofu</title>
+  <subtitle>Tofu</subtitle>
+  <author>
+    <name>Tofu</name>
+
+  </author>
+  <link rel="alternate" type="text/html" href="http://thetofu.com/"/>
+  <link rel="self" type="text/xml" href="http://thetofu.com/atom.xml"/>
+
+  <updated>$updated</updated>
+
+  <link rel="service.feed" type="application/x.atom+xml"
+  href="http://thetofu.com/atom.xml" title="The Tofu"/>
+  #for $entry in $entries
+  <entry>
+    <id>$entry.id</id>
+
+    <link rel="alternate" type="text/html" href="http://thetofu.com/archive/$id.html"/>
+    <title>$entry.title</title>
+    <published>2009-01-14T14:27:40Z</published>
+    <updated>2009-01-14T14:27:40Z</updated>
+    #for $cat in $entry.categories
+    <category term="$cat"/>
+    #end for
+    <content type="html">$entry.content</content>
+  </entry>
+  #end for
+</feed>

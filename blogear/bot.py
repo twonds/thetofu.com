@@ -5,13 +5,15 @@
 import time
 import datetime
 from twisted.python import log
-from twisted.internet import defer
+from twisted.internet import defer, task
 from twisted.words.xish import domish, xpath
 from wokkel.pubsub import PubSubClient, Item
 from wokkel import disco
 from twisted.words.protocols.jabber.jid import internJID
 
 from wokkel.xmppim import AvailablePresence
+# use cheetah for templating
+from Cheetah.Template import Template
 
 
 class PubSub2Blog(object):
@@ -19,35 +21,101 @@ class PubSub2Blog(object):
 
     The templates are extremly simple for now and can be changed later.
     """
+    queue_interval = 2.0
 
     def __init__(self, path):
         self.path = path
+        self.www_path = path+'/www'
+        self.template_path = path+'/templates'
+         
+        self.atom_queue  = []
+        self.index_queue = []
+
+        self.processing_atom  = False
+        self.processing_index = False
+
+        ## tasks to process queues
+        self.task = task.LoopingCall(self._processQueues)
+        self.task.start(self.queue_interval) # run every N seconds
+
+
+    def _processQueue(self, queue_name, ext='.html'):
+        """
+        """
+        queue = getattr(self, queue_name+'_queue')
+        queue_status = getattr(self, 'processing_'+queue_name, False)
+        
+        if not queue_status and len(queue)>0:
+            setattr(self, 'processing_'+queue_name, True)
+            id, entry_file_name, entries = queue.pop()
+            
+            html = self.template(queue_name+ext, entries)
+            file_name = self.www_path+'/' + queue_name + ext
+            self._writeFile(file_name, html)
+
+    def _processQueues(self):
+        self._processQueue('atom', '.xml')
+        self._processQueue('index')
+            
 
     def template(self, file, vars):
-        """ Very simple template for writing atom to templates.
+        """ Process a template 
         """
-        return open(self.path+'/'+file, 'r').read() % vars
+        template = open(self.template_path+'/'+file, 'r').read()
+        return str(Template(template, searchList=[vars]))
 
 
-    def atom2html(self, orig):
-	"""Return a sanitized Atom entry.
-	This method should be overridden.
-	"""
+    def atom2hash(self, elem):
+        """
+        """
         args = {}
-
-        if orig.content:
-            args['content'] = str(orig.content)
-        elif orig.title:
-            args['content'] = str(orig.title)
+        args['id'] = str(elem.id)
+        if elem.content:
+            args['content'] = str(elem.content)
+        elif elem.title:
+            args['content'] = str(elem.title)
             
-        if orig.title:
-            args['title'] = str(orig.title)
-        elif oriq.id:
-            args['title'] = str(orig.id)
+        if elem.title:
+            args['title'] = str(elem.title)
+        elif elem.id:
+            args['title'] = str(elem.id)
         else:
             args['title'] = 'No Title'
-        return self.template('entry.html', args)
-	
+
+        return args
+
+
+    def _writeFile(self, file_name, html):
+        # open up file
+        ef = open(file_name, 'w')
+        ef.write(html)
+        ef.close()
+
+    def updateEntry(self, blog_id, args):
+        """update the entry on disk.
+        
+        """
+        html = self.template('entry.html', args)
+        id, file_name = blog_id.split(":", 1)
+        file_name = self.www_path+'/archive/' + file_name + ".html"
+        self._writeFile(file_name, html)
+        
+
+    def updateAtom(self, blog_id, entries):
+        """
+        """
+        id, file_name = blog_id.split(":", 1)
+        # push on queue
+        self.atom_queue.append((id, file_name, entries))
+        
+
+    def updateIndex(self, blog_id, entries):
+        """
+        """
+        id, file_name = blog_id.split(":", 1)
+        # push on queue
+        self.index_queue.append((id, file_name, entries))
+        
 
 
 class Bot(PubSubClient):
@@ -75,6 +143,7 @@ class Bot(PubSubClient):
         PubSubClient.connectionInitialized(self)
 
 
+    @defer.inlineCallbacks
     def itemsReceived(self, item_event):
         """Gather items, convert to html and send the files to there proper location.
         """
@@ -93,17 +162,23 @@ class Bot(PubSubClient):
             blog_ids = xpath.queryForNodes("/item/entry/id", item)
             if blog_ids:
                 blog_id = str(blog_ids[0])
-                
-            log.msg(blog_id)
 
             # create entry
-            html = self.blog.atom2html(item.entry)
-            log.msg(html)
-            
+            args = self.blog.atom2hash(item.entry)
+            self.blog.updateEntry(blog_id, args)
+            # grab last 10 items
+            ret_items = yield self.items(self.service, self.nodeIdentifier, 10)
+            last_items = []
+            last_ids   = []
+            for ri in ret_items:
+                rargs = self.blog.atom2hash(ri.entry)
+                if rargs['id'] not in last_ids:
+                    last_items.append(rargs)
+                    last_ids.append(args['id'])
             # update index
-
-            # update rss
-
+            self.blog.updateIndex(blog_id, last_items)
+            # update atom
+            self.blog.updateAtom(blog_id, last_items)
 
 
     def getJid(self):

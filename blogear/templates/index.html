@@ -14,8 +14,8 @@
 	  <div id="navigation">
                 <ul>
                         <li><a href="http://thetofu.com" class="active">thetofu.com</a></li>
-                        <li><a href="/entries/">archive</a></li>
-                        <li><a href="/blog.xml">atom</a></li>
+                        <li><a href="/archive/">archive</a></li>
+                        <li><a href="/atom.xml">atom</a></li>
                         <li><a href="http://www.stanziq.com">work</a></li>
                         <li><a href="http://www.chesspark.com">play</a></li>
                         <li><a href="http://identi.ca/tofu">dent</a></li>
@@ -24,7 +24,9 @@
         </div>
 
 	<div id="content">
-	  %(content)s
+	 #for $entry in $entries
+	 $entry.id
+	 #endfor
 	</div>
 	
 	<div id="footer">
