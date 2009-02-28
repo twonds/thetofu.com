@@ -53,8 +53,7 @@ class PubSub2Blog(object):
                 'entries': entries,
                 'updated':str(datetime.datetime.utcnow()),
                     }
-            log.msg(args)
-            log.msg(queue_name+ext)
+            
             html = self.template(queue_name+ext, args)
             file_name = self.www_path+'/' + queue_name + ext
             self._writeFile(file_name, html)
