@@ -5,7 +5,7 @@
 import time
 import datetime
 from twisted.python import log
-from twisted.internet import defer, task
+from twisted.internet import defer, task, reactor
 from twisted.words.xish import domish, xpath
 from wokkel.pubsub import PubSubClient, Item
 from wokkel import disco
@@ -48,9 +48,13 @@ class PubSub2Blog(object):
         if not queue_status and len(queue)>0:
             setattr(self, 'processing_'+queue_name, True)
             id, entry_file_name, entries = queue.pop()
-            args = {'entries': entries,
-                    'updated':str(datetime.datetime.utcnow()),
+            args = {
+                'id': id,
+                'entries': entries,
+                'updated':str(datetime.datetime.utcnow()),
                     }
+            log.msg(args)
+            log.msg(queue_name+ext)
             html = self.template(queue_name+ext, args)
             file_name = self.www_path+'/' + queue_name + ext
             self._writeFile(file_name, html)
@@ -70,7 +74,7 @@ class PubSub2Blog(object):
 
 
     def atom2hash(self, elem):
-        """
+        """ Convert an atom domish element to a dictionary for template processing.
         """
         args = {}
         args['id'] = str(elem.id)
