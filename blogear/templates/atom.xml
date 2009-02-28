@@ -17,16 +17,16 @@
   href="http://thetofu.com/atom.xml" title="The Tofu"/>
   #for $entry in $entries
   <entry>
-    <id>$entry.id</id>
+    <id>$entry.$id</id>
 
     <link rel="alternate" type="text/html" href="http://thetofu.com/archive/$id.html"/>
-    <title>$entry.title</title>
+    <title>$entry.$title</title>
     <published>2009-01-14T14:27:40Z</published>
     <updated>2009-01-14T14:27:40Z</updated>
-    #for $cat in $entry.categories
+    #for $cat in $entry.$categories
     <category term="$cat"/>
     #end for
-    <content type="html">$entry.content</content>
+    <content type="html">$entry.$content</content>
   </entry>
   #end for
 </feed>

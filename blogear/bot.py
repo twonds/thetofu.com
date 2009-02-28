@@ -40,7 +40,7 @@ class PubSub2Blog(object):
 
 
     def _processQueue(self, queue_name, ext='.html'):
-        """
+        """ Process a queue with the given name. 
         """
         queue = getattr(self, queue_name+'_queue')
         queue_status = getattr(self, 'processing_'+queue_name, False)
@@ -48,10 +48,14 @@ class PubSub2Blog(object):
         if not queue_status and len(queue)>0:
             setattr(self, 'processing_'+queue_name, True)
             id, entry_file_name, entries = queue.pop()
-            
-            html = self.template(queue_name+ext, entries)
+            args = {'entries': entries,
+                    'updated':str(datetime.datetime.utcnow()),
+                    }
+            html = self.template(queue_name+ext, args)
             file_name = self.www_path+'/' + queue_name + ext
             self._writeFile(file_name, html)
+
+            reactor.callLater(1.0, setattr, self, 'processing_'+queue_name, True)
 
     def _processQueues(self):
         self._processQueue('atom', '.xml')
@@ -70,6 +74,11 @@ class PubSub2Blog(object):
         """
         args = {}
         args['id'] = str(elem.id)
+        args['categories'] = []
+        cats = domish.generateElementsNamed(elem.children, 'category')
+        for cat in cats:
+            args['categories'].append(cat['term'])
+            
         if elem.content:
             args['content'] = str(elem.content)
         elif elem.title:
@@ -81,7 +90,7 @@ class PubSub2Blog(object):
             args['title'] = str(elem.id)
         else:
             args['title'] = 'No Title'
-
+            
         return args
 
 
