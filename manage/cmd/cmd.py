@@ -18,7 +18,7 @@ from blogger import Blogger
 VERSION=0.1
 
 @defer.inlineCallbacks
-def createSearcher(domain, service, node, username, password, blog, debug=False):
+def createPublisher(domain, service, node, username, password, blog, debug=False):
     
     factory = client.DeferredClientFactory(jid.internJID(username), password)
     factory.streamManager.logTraffic = debug
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     else:
         log.startLogging(sys.stdout)
 
-        reactor.callWhenRunning(createSearcher,
+        reactor.callWhenRunning(createPublisher,
                                 options.server,
                                 options.pubsub,
                                 options.node,
