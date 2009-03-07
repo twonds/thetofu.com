@@ -118,6 +118,7 @@ class PubSub2Blog(object):
         """
         id, file_name = blog_id.split(":", 1)
         # push on queue
+        entries['id'] = file_name
         self.atom_queue.append((id, file_name, entries))
         
 
@@ -125,6 +126,7 @@ class PubSub2Blog(object):
         """
         """
         id, file_name = blog_id.split(":", 1)
+        entries['id'] = file_name
         # push on queue
         self.index_queue.append((id, file_name, entries))
         
