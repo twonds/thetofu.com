@@ -2,7 +2,6 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
   <id>urn:thetofu.com:${id}:thetofu</id>
   <title>TheTofu</title>
-  <subtitle>${id}</subtitle>
   <author>
     <name>Tofu</name>
 
