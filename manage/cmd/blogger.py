@@ -38,20 +38,20 @@ class Blogger(pubsub.PubSubClient):
     def getAuthorName(self):
         iq = xmppim.IQ(self.xmlstream, 'get')
         iq.addElement('vCard','vcard-temp')
-        r = yield iq.send(self.get_jid().full())
-
-        vcard = getattr(r, 'vCard', None)
-        if vcard:
-            fn = getattr(vcard, 'FN', None)
-            if fn:
-                self.author_name = str(fn)
-            nick = getattr(vcard, 'NICKNAME', None)
-            if nick:
-                self.author_nick = str(nick)
+        r = yield iq.send(self.get_jid().full()).addErrback(lambda _:log.msg('No vCard'))
+        if r is not None:
+            vcard = getattr(r, 'vCard', None)
+            if vcard:
+                fn = getattr(vcard, 'FN', None)
+                if fn:
+                    self.author_name = str(fn)
+                nick = getattr(vcard, 'NICKNAME', None)
+                if nick:
+                    self.author_nick = str(nick)
         
     @defer.inlineCallbacks
     def connectionInitialized(self):
-        self.send(xmppim.AvailablePresence())
+        #self.send(xmppim.AvailablePresence())
         
         # gather and create blog
         request = self._buildConfigureRequest('get')
@@ -133,11 +133,11 @@ class Blogger(pubsub.PubSubClient):
         """
         if nodeIdentifier is None:
             nodeIdentifier = self.node
-        result = yield self.createNode(self.service, nodeIdentifier, nodeType='flat')
+        result = yield self.createNode(self.service, nodeIdentifier, options=self.options)
 
         
         
-    def createNode(self, service, nodeIdentifier=None, nodeType=None):
+    def createNode(self, service, nodeIdentifier=None, nodeType=None, options=[]):
         """
         Create a publish subscribe node.
         
@@ -154,11 +154,13 @@ class Blogger(pubsub.PubSubClient):
         if nodeType:
             request.command['type'] = nodeType
         request.pubsub.addElement('configure')
-        configure = data_form.Form('submit', 
-                                   fields=self.options,
-                                   formNamespace=pubsub.NS_PUBSUB+'#node_config')
+        if options:
+            
+            configure = data_form.Form('submit', 
+                                       fields=options,
+                                       formNamespace=pubsub.NS_PUBSUB+'#node_config')
         
-        request.pubsub.configure.addChild(configure.toElement())
+            request.pubsub.configure.addChild(configure.toElement())
 
         
         def cb(iq):

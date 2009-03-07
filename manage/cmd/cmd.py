@@ -18,13 +18,15 @@ from blogger import Blogger
 VERSION=0.1
 
 @defer.inlineCallbacks
-def createPublisher(domain, service, node, username, password, blog, debug=False):
+def createPublisher(domain, service, node, username, password, blog, author=None, debug=False):
     
     factory = client.DeferredClientFactory(jid.internJID(username), password)
     factory.streamManager.logTraffic = debug
 
     blogger = Blogger(jid.internJID(service), node)
     blogger.blog = blog
+    if author is not None:
+        blogger.author_name = author
     blogger.setHandlerParent(factory.streamManager)
 
     yield client.clientCreator(factory)
@@ -43,6 +45,9 @@ if __name__ == '__main__':
     parser.add_option('-n', '--node', action='store', dest='node',
                       help='Node to publish to')
 
+    parser.add_option('-a', '--author', action='store', dest='author',
+                      help='Author Name')
+
     parser.add_option('-d', '--debug', action='store', dest='debug',
                       help='Show debug information.')
 
@@ -50,6 +55,7 @@ if __name__ == '__main__':
     parser.set_defaults(server="localhost")
     parser.set_defaults(pubsub="pubsub.localhost")
     parser.set_defaults(node="blog")
+    parser.set_defaults(author=None)
     parser.set_defaults(debug=False)
 
     
@@ -67,5 +73,6 @@ if __name__ == '__main__':
                                 args[0],
                                 args[1],
                                 args[2],
+                                options.author,
                                 options.debug)
         reactor.run()
