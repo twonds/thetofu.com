@@ -150,10 +150,6 @@ class Bot(PubSubClient):
         """
         self.send(AvailablePresence())
         self.subscribe(self.service, self.nodeIdentifier, self.getJid().userhostJID())
-        # also send presence to the pubsub node
-        p = AvailablePresence()
-        p['to'] = self.service.full()
-        self.send(p)
         
         PubSubClient.connectionInitialized(self)
 
