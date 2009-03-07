@@ -14,7 +14,7 @@ class Blogger(pubsub.PubSubClient):
     author_nick = None
 
     options = [
-        data_form.Field(var='pubsub#presence_based_delivery',value='1'),
+        data_form.Field(var='pubsub#presence_based_delivery',value='0'),
         data_form.Field(var='pubsub#persist_items',value='1'),
         data_form.Field(var='pubsub#max_items',value='10'), #change this value later
         ]
@@ -66,7 +66,13 @@ class Blogger(pubsub.PubSubClient):
             node_persistence = xpath.queryForNodes(
                 "/x/field[@var='pubsub#persist_items']/value", 
                 node_configure.pubsub.configure.x)
-            if len(node_persistence)>0 and str(node_persistence[0]) == '0':
+            node_presence = xpath.queryForNodes(
+                "/x/field[@var='pubsub#presence_based_delivery']/value", 
+                node_configure.pubsub.configure.x)
+            do_config = False
+            if str(node_persistence[0]) == '0' or str(node_presence[0])=='1':
+                do_config = True
+            if len(node_persistence)>0 and do_config:
                 request = self._buildConfigureRequest(options=self.options)
                 
                 r = yield request.send(self.service)

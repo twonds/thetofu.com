@@ -1,3 +1,5 @@
+
+
 An XMPP based blog.
 
 This is a set of tools to use XMPP for creating and managing a blog. 
