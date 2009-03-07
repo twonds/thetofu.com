@@ -30,9 +30,9 @@ body {
 /* header */
 #header {
 	border-bottom:1px solid #999;
-	height:200px;
+	height:180px;
 	margin:0 auto;
-	width:861px;
+	width:761px;
 }
 #header h1 {
 	color:#888;
@@ -54,7 +54,7 @@ body {
 	background:#fafafa;
 	border-right:1px solid #999;
 	margin:0 auto;
-	width:860px;
+	width:760px;
 	height:50px;
 	list-style:none;
 }
@@ -84,7 +84,7 @@ body {
 	height:auto;
 	margin:0 auto;
 	padding:0 0 20px;
-	width:851px;
+	width:751px;
 }
 #content h1 {
 	border-bottom:1px dashed #999;
