@@ -102,9 +102,9 @@ class PubSub2Blog(object):
     def _writeFile(self, file_name, html):
         # open up file
         ef = open(file_name, 'w')
-        os.fchmod(ef, 644)
         ef.write(html)
         ef.close()
+        os.chmod(file_name, 0644)
 
     def updateEntry(self, blog_id, args):
         """update the entry on disk.
