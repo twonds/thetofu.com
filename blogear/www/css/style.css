@@ -2,6 +2,8 @@
 	Author	:	Christopher Robinson
 	Email		:	christopher@edg3.co.uk
 	Website	:	http://www.edg3.co.uk/
+
+        Modifications done by Christopher Zorn
 */
 * {
 	border:0;
@@ -95,6 +97,10 @@ body {
 	padding:20px 20px 0;
 }
 
+#content b {
+	padding:20px 0px 0;
+}
+
 /* footer */
 #footer {
 	border-top:1px solid #999; 
@@ -102,5 +108,5 @@ body {
 	margin:0 auto;
 	padding:10px;
 	text-align:center;
-	width:851px;
+	width:751px;
 }
