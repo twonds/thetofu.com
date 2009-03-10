@@ -186,6 +186,7 @@ class Bot(PubSubClient):
             last_ids   = []
             for ri in ret_items:
                 rargs = self.blog.atom2hash(ri.entry)
+                
                 if rargs['id'] not in last_ids:
                     last_items.append(rargs)
                     last_ids.append(args['id'])
