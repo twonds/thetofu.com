@@ -4,6 +4,7 @@
 #
 import time
 import datetime
+import os
 from twisted.python import log
 from twisted.internet import defer, task, reactor
 from twisted.words.xish import domish, xpath
@@ -101,6 +102,7 @@ class PubSub2Blog(object):
     def _writeFile(self, file_name, html):
         # open up file
         ef = open(file_name, 'w')
+        os.fchmod(ef, 644)
         ef.write(html)
         ef.close()
 
