@@ -39,6 +39,8 @@ class PubSub2Blog(object):
         self.task = task.LoopingCall(self._processQueues)
         self.task.start(self.queue_interval) # run every N seconds
 
+    def _cmp(self, item1, item2):
+        return cmp(item1['published'], item2['published'])
 
     def _processQueue(self, queue_name, ext='.html'):
         """ Process a queue with the given name. 
@@ -89,6 +91,12 @@ class PubSub2Blog(object):
         elif elem.title:
             args['content'] = str(elem.title)
             
+
+        if elem.published:
+            args['published'] = str(elem.published)
+        else:
+            args['published'] = str(datetime.datetime.now())
+
         if elem.title:
             args['title'] = str(elem.title)
         elif elem.id:
@@ -120,6 +128,8 @@ class PubSub2Blog(object):
         """
         """
         id, file_name = blog_id.split(":", 1)
+        ## ejabberd has a bug so we need to sort the entries by date
+        entries.sort(self._cmp)
         # push on queue
         self.atom_queue.append((id, file_name, entries))
         
@@ -128,6 +138,9 @@ class PubSub2Blog(object):
         """
         """
         id, file_name = blog_id.split(":", 1)
+        log.msg(entries)
+        log.msg(len(entries))
+        entries.sort(self._cmp)
         # push on queue
         self.index_queue.append((id, file_name, entries))
         
