@@ -138,8 +138,6 @@ class PubSub2Blog(object):
         """
         """
         id, file_name = blog_id.split(":", 1)
-        log.msg(entries)
-        log.msg(len(entries))
         entries.sort(self._cmp)
         # push on queue
         self.index_queue.append((id, file_name, entries))

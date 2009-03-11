@@ -24,7 +24,7 @@
     #for $cat in $entry['categories']
     <category term="$cat"/>
     #end for
-    <content type="html">$entry['content']</content>
+    <content type="html">#filter WebSafe $entry['content'] #end filter</content>
   </entry>
   #end for
 </feed>
