@@ -189,7 +189,7 @@ class Bot(PubSubClient):
                 
                 if rargs['id'] not in last_ids:
                     last_items.append(rargs)
-                    last_ids.append(args['id'])
+                    last_ids.append(rargs['id'])
             # update index
             self.blog.updateIndex(blog_id, last_items)
             # update atom
