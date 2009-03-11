@@ -61,7 +61,7 @@ class PubSub2Blog(object):
             file_name = self.www_path+'/' + queue_name + ext
             self._writeFile(file_name, html)
 
-            reactor.callLater(1.0, setattr, self, 'processing_'+queue_name, True)
+            reactor.callLater(1.0, setattr, self, 'processing_'+queue_name, False)
 
     def _processQueues(self):
         self._processQueue('atom', '.xml')
