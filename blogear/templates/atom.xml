@@ -19,8 +19,8 @@
 
     <link rel="alternate" type="text/html" href="http://thetofu.com/archive/$(entry['idname']).html"/>
     <title>$entry['title']</title>
-    <published>2009-01-14T14:27:40Z</published>
-    <updated>2009-01-14T14:27:40Z</updated>
+    <published>$entry['published']</published>
+    <updated>$entry['updated']</updated>
     #for $cat in $entry['categories']
     <category term="$cat"/>
     #end for
