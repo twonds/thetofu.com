@@ -5,8 +5,11 @@
 import time
 import datetime
 import os
+import cPickle as pickle
+import sqlite3
 from twisted.python import log
 from twisted.internet import defer, task, reactor
+
 from twisted.words.xish import domish, xpath
 from wokkel.pubsub import PubSubClient, Item
 from wokkel import disco
@@ -25,7 +28,14 @@ class PubSub2Blog(object):
     queue_interval = 2.0
 
     def __init__(self, path):
-        self.path = path
+        self.db = sqlite3.connect(path+'/.items.db')        
+        try:
+            c = self.db.cursor()
+            c.execute("""CREATE TABLE items (blog_id, published, args)""")
+            self.db.commit()
+            c.close()
+        except:
+            pass
         self.www_path = path+'/www'
         self.template_path = path+'/templates'
          
@@ -79,6 +89,7 @@ class PubSub2Blog(object):
         """ Convert an atom domish element to a dictionary for template processing.
         """
         args = {}
+        
         args['id'] = str(elem.id)
         id, args['idname'] = str(elem.id).split(":",1)
         args['categories'] = []
@@ -96,6 +107,11 @@ class PubSub2Blog(object):
             args['published'] = str(elem.published)
         else:
             args['published'] = str(datetime.datetime.now())
+
+        if elem.updated:
+            args['updated'] = str(elem.updated)
+        else:
+            args['updated'] = str(datetime.datetime.now())
 
         if elem.title:
             args['title'] = str(elem.title)
@@ -120,6 +136,18 @@ class PubSub2Blog(object):
         """
         html = self.template('entry.html', args)
         id, file_name = blog_id.split(":", 1)
+        
+        c = self.db.cursor()
+        c.execute("""SELECT count(1) FROM items WHERE blog_id = ?""",(blog_id,))
+        row = c.fetchone()
+        if row[0] > 0:
+            sql = """UPDATE items SET blog_id = ?, published = ?, args = ?)"""
+        else:
+            sql = """INSERT INTO items (blog_id, published, args) VALUES (?, ?, ?)"""
+        c.execute(sql,(blog_id, args['published'], str(pickle.dumps(args))))
+        self.db.commit()
+        c.close()
+        
         file_name = self.www_path+'/archive/' + file_name + ".html"
         self._writeFile(file_name, html)
         
@@ -143,6 +171,14 @@ class PubSub2Blog(object):
         self.index_queue.append((id, file_name, entries))
         
 
+    def archiveItems(self):
+        last_items = []
+        c = self.db.cursor()
+        c.execute("""SELECT args FROM items ORDER BY published""")
+        for row in c:
+            last_items.append(pickle.loads(str(row[0])))
+            
+        return last_items
 
 class Bot(PubSubClient):
     """The listener bot to manage the static html representing thetofu.com
@@ -168,7 +204,7 @@ class Bot(PubSubClient):
         PubSubClient.connectionInitialized(self)
 
 
-    @defer.inlineCallbacks
+
     def itemsReceived(self, item_event):
         """Gather items, convert to html and send the files to there proper location.
         """
@@ -188,19 +224,15 @@ class Bot(PubSubClient):
             if blog_ids:
                 blog_id = str(blog_ids[0])
 
+            if item.entry.id is None:
+                log.msg('Wrong format for entry')
+                continue
             # create entry
             args = self.blog.atom2hash(item.entry)
             self.blog.updateEntry(blog_id, args)
-            # grab last 10 items
-            ret_items = yield self.items(self.service, self.nodeIdentifier, 10)
-            last_items = []
-            last_ids   = []
-            for ri in ret_items:
-                rargs = self.blog.atom2hash(ri.entry)
-                
-                if rargs['id'] not in last_ids:
-                    last_items.append(rargs)
-                    last_ids.append(rargs['id'])
+            
+            last_items = self.blog.archiveItems()
+
             # update index
             self.blog.updateIndex(blog_id, last_items)
             # update atom
