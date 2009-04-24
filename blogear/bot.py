@@ -31,7 +31,7 @@ class PubSub2Blog(object):
         self.db = sqlite3.connect(path+'/.items.db')        
         try:
             c = self.db.cursor()
-            c.execute("""CREATE TABLE items (blog_id, published, args)""")
+            c.execute("""CREATE TABLE IF NOT EXISTS items (blog_id UNIQUE, published, args)""")
             self.db.commit()
             c.close()
         except:
@@ -141,10 +141,11 @@ class PubSub2Blog(object):
         c.execute("""SELECT count(1) FROM items WHERE blog_id = ?""",(blog_id,))
         row = c.fetchone()
         if row[0] > 0:
-            sql = """UPDATE items SET blog_id = ?, published = ?, args = ?)"""
+            sql = """UPDATE items SET blog_id = ?, published = ?, args = ?"""
         else:
             sql = """INSERT INTO items (blog_id, published, args) VALUES (?, ?, ?)"""
-        c.execute(sql,(blog_id, args['published'], str(pickle.dumps(args))))
+            
+        c.execute(sql, (blog_id, args['published'], str(pickle.dumps(args))))
         self.db.commit()
         c.close()
         
@@ -174,7 +175,7 @@ class PubSub2Blog(object):
     def archiveItems(self):
         last_items = []
         c = self.db.cursor()
-        c.execute("""SELECT args FROM items ORDER BY published""")
+        c.execute("""SELECT args FROM items ORDER BY published LIMIT 10""")
         for row in c:
             last_items.append(pickle.loads(str(row[0])))
             
