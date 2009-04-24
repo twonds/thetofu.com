@@ -95,7 +95,7 @@ body {
 	padding:20px 0 0;
 }
 #content p {
-	padding:20px 20px 0;
+	padding:20px 20px 10px;
 }
 
 #content b {
@@ -103,7 +103,7 @@ body {
 }
 
 #content ul {
-	padding:20px 25px 10px 10px;
+	padding:20px 25px 1px 30px;
 }
 
 /* footer */
