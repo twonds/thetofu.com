@@ -99,11 +99,11 @@ body {
 }
 
 #content b {
-	padding:20px 20px 0;
+	padding:20px 20px 5px;
 }
 
 #content ul {
-	padding:20px 20px 0;
+	padding:25px 20px 0;
 }
 
 /* footer */
