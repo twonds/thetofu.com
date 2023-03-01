@@ -1,2 +1,0 @@
-www/ contains a pubsub manager for blog items
-cmd/ command line tools for handling items published to a blog node
