@@ -22,6 +22,8 @@ I want to build a personal website at thetofu.com that displays information abou
 
 Write an article about starting and delivering the MVP
 
+Document future ideas, features and evolutions like publishing to other systems like medium etc.
+
 ## Platform(s)
 
 I will try and go into more details on platforms. Right now, I have some basic tools to try out.
