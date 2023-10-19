@@ -35,3 +35,10 @@ Use [mkdocs](https://www.mkdocs.org/) for rendering markdown into html or other 
 Use Reflex(https://reflex.dev/) to build the software and explore its concepts and why those concepts resonate with my ideal software lifecycle.
 
 Create a simple deploy mechanism for delivering the software.
+
+## References
+
+[Reflex]((https://reflex.dev/)
+[MkDocs](https://www.mkdocs.org/)
+[Developer Productivity](https://queue.acm.org/detail.cfm?id=3454124)
+[Measuring Productivity](https://www.mckinsey.com/industries/technology-media-and-telecommunications/our-insights/yes-you-can-measure-software-developer-productivity)
