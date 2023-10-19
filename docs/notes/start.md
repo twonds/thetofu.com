@@ -1,6 +1,6 @@
 # Starting
 
-I want to play around with reflex.dev and showcase and discuss aspects about usability, composability and operability.
+I want to play around with reflex.dev and showcase and discuss software lifecycle aspects. The goal is to focus on usability, composability and operability.
 
 ## Goals
 
