@@ -14,6 +14,13 @@ set -euo pipefail
 "${SCRIPT_DIR}"/init.sh "${PROJECT_NAME}"
 
 
+cd "${PROJECT_NAME}"
+ls -la
+reflex run &
+echo "$!" > ./reflex.pid
+
+open "http://localhost:3000"
+
 if [ -n "${TEAR_DOWN}" ]
 then
 "${SCRIPT_DIR}/destroy.sh ${PROJECT_NAME}"
