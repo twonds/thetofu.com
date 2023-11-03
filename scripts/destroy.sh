@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
+# XXX - do not erase or destory git repo for now
 #
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
-"${SCRIPT_DIR}/setup.sh"
-
-set -eo pipefail
+set -euo pipefail
 
 PROJECT_NAME="${1}"
 if [ -z "${PROJECT_NAME}" ]
@@ -13,8 +11,4 @@ then
     exit 1
 fi
 
-set -u
-
-echo "Initializing ${PROJECT_NAME}"
-poetry new "${PROJECT_NAME}"
-cd "${PROJECT_NAME}"
+rm -rf "${PROJECT_NAME}"

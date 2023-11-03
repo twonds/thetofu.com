@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 #
+# Generate blog application using reflex.dev
+#
+#
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
-
-"${SCRIPT_DIR}/setup.sh"
+PROJECT_NAME="${1}"
+TEAR_DOWN="${2}"
 
 set -eo pipefail
 
-PROJECT_NAME="${1}"
 if [ -z "${PROJECT_NAME}" ]
 then
     echo "You MUST provide a project name"
@@ -15,6 +17,12 @@ fi
 
 set -u
 
-echo "Initializing ${PROJECT_NAME}"
-poetry new "${PROJECT_NAME}"
-cd "${PROJECT_NAME}"
+
+
+"${SCRIPT_DIR}/init.sh ${PROJECT_NAME}"
+
+
+if [ -n "${PROJECT_NAME}" ]
+then
+"${SCRIPT_DIR}/destroy.sh ${PROJECT_NAME}"
+fi

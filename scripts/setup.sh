@@ -8,6 +8,8 @@ set -euo pipefail
 if ! command -v brew &> /dev/null
 then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+else
+    brew update
 fi
 
 PYTHON=python
@@ -29,4 +31,16 @@ if ! command -v poetry &> /dev/null
 then
     # curl -sSL https://install.python-poetry.org | "${PYTHON}" -
     brew install poetry
+fi
+
+if ! command -v pip &> /dev/null
+then
+    # ensure pip
+    "${PYTHON}" -m ensurepip --upgrade
+fi
+
+if ! command -v reflex &> /dev/null
+then
+    # install reflex
+    pip install reflex
 fi
