@@ -12,7 +12,7 @@ set -euo pipefail
 
 #The reflex init command creates a new Reflex app in the current directory. If a rxconfig.py file already exists already, it will re-initialize the app with the latest template.
 # XXX - What minimum code do we need?
-# XXX - Can we use an outside template on init?
+# XXX - Can we use an outside template on init? How about downloading from github?
 # https://github.com/reflex-dev/reflex/blob/6e1bce341288758972229772e664622604b4dfd5/reflex/constants/base.py#L77
 "${SCRIPT_DIR}"/init.sh "${PROJECT_NAME}"
 
