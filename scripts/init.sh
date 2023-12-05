@@ -19,3 +19,4 @@ echo "Initializing ${PROJECT_NAME}"
 poetry new "${PROJECT_NAME}"
 cd "${PROJECT_NAME}"
 reflex init
+poetry add dulwich

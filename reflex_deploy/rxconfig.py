@@ -6,3 +6,5 @@ config = rx.Config(
     cp_backend_url="http://localhost:8000/controlpane",
     cp_web_url="http://localhost:3000"
 )
+
+# XXX - remember supervisord to execute services
