@@ -57,3 +57,4 @@ kubectl get pods -n crossplane-system
 
 kubectl api-resources  | grep crossplane
 
+# What provider do we need?
