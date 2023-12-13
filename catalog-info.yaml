@@ -1,0 +1,13 @@
+---
+apiVersion: backstage.thetofu.com/v1alpha1
+kind: Component
+metadata:
+  name: thetofu
+  annotations:
+    # this could also be `url:<url>` if the documentation isn't in the same location
+    # we probably want this to be a url or a git url
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: documentation
+  lifecycle: experimental
+  # owner: user-or-team-name

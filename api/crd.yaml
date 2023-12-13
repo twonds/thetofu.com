@@ -17,13 +17,19 @@ spec:
           spec:
             type: object
             properties:
-              location:
+              type:
                 type: string
                 oneOf:
-                  - pattern: '^EU$'
-                  - pattern: '^US$'
+                  - pattern: '^documentation$'
+                  - pattern: '^application$'
+              lifecycle:
+                type: string
+                oneOf:
+                  - pattern: '^experimental$'
+                  - pattern: '^development$'
+                  - pattern: '^production$'
             required:
-              - location
+              - type
     served: true
     referenceable: true
   claimNames:
