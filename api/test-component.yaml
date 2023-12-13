@@ -1,0 +1,7 @@
+---
+apiVersion: backstage.thetofu.com/v1alpha1
+kind: Component
+metadata:
+  name: my-blog
+spec:
+  location: "US"

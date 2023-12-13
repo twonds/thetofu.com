@@ -1,0 +1,8 @@
+---
+site_name: thetofu
+
+nav:
+  - Home: docs/index.md
+
+plugins:
+  - techdocs-core

@@ -1,0 +1,31 @@
+---
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: components.backstage.thetofu.com
+spec:
+  group: backstage.thetofu.com
+  names:
+    kind: Component
+    plural: components
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              location:
+                type: string
+                oneOf:
+                  - pattern: '^EU$'
+                  - pattern: '^US$'
+            required:
+              - location
+    served: true
+    referenceable: true
+  claimNames:
+    kind: ComponentClaim
+    plural: componentclaim
