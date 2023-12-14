@@ -7,6 +7,8 @@ metadata:
     # this could also be `url:<url>` if the documentation isn't in the same location
     # we probably want this to be a url or a git url
     backstage.io/techdocs-ref: dir:.
+    # XXX - what should this be?
+    backstage.io/techdocs-loc: https://github.com/twonds/thetofu.com.git
 spec:
   type: documentation
   lifecycle: experimental

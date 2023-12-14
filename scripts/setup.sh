@@ -60,8 +60,10 @@ kubectl get pods -n crossplane-system
 
 kubectl api-resources  | grep crossplane
 echo "Installing Argo workflows"
-kubectl create namespace argo
+kubectl create namespace argo || echo
 kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/v3.5.2/install.yaml
 
+# kubectl crossplane install provider crossplanecontrib/provider-kubernetes:v0.9.0
+kubectl apply -f api/k8s-provider.yaml
 
 # What provider do we need?
