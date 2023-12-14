@@ -27,6 +27,12 @@ then
     brew install kind
 fi
 
+# setup argo cli
+if ! command -v argo &> /dev/null
+then
+    brew install argo
+fi
+
 # setup a kind cluster
 CLUSTER_NAME=thetofu
 
@@ -62,6 +68,20 @@ kubectl api-resources  | grep crossplane
 echo "Installing Argo workflows"
 kubectl create namespace argo || echo
 kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/v3.5.2/install.yaml
+
+# bypass the UI login for now
+kubectl patch deployment \
+  argo-server \
+  --namespace argo \
+  --type='json' \
+  -p='[{"op": "replace", "path": "/spec/template/spec/containers/0/args", "value": [
+  "server",
+  "--auth-mode=server"
+]}]'
+
+# Open a port to the argo UI
+# kubectl -n argo port-forward deployment/argo-server 2746:2746
+
 
 # kubectl crossplane install provider crossplanecontrib/provider-kubernetes:v0.9.0
 kubectl apply -f api/k8s-provider.yaml
