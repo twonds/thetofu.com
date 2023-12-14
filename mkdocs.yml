@@ -1,5 +1,6 @@
 ---
 site_name: thetofu
+site_description: Notes and thoughts about the software lifecycle
 
 nav:
   - Home: index.md

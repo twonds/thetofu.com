@@ -41,20 +41,27 @@ helm repo add \
 crossplane-stable https://charts.crossplane.io/stable
 helm repo update
 
-helm install crossplane \
+helm upgrade -i crossplane \
 crossplane-stable/crossplane \
 --dry-run --debug \
 --namespace crossplane-system \
 --create-namespace
 
-helm install crossplane \
+helm upgrade -i crossplane \
 crossplane-stable/crossplane \
 --namespace crossplane-system \
 --create-namespace
 
+sleep 1
+echo "Waiting on crossplane to start..."
+kubectl wait --for=condition=ready pod -l app=crossplane -n crossplane-system
 
 kubectl get pods -n crossplane-system
 
 kubectl api-resources  | grep crossplane
+echo "Installing Argo workflows"
+kubectl create namespace argo
+kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/v3.5.2/install.yaml
+
 
 # What provider do we need?
