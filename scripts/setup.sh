@@ -56,9 +56,8 @@ crossplane-stable/crossplane \
 helm upgrade -i crossplane \
 crossplane-stable/crossplane \
 --namespace crossplane-system \
---create-namespace
+--create-namespace --wait --timeout 120s
 
-sleep 1
 echo "Waiting on crossplane to start..."
 kubectl wait --for=condition=ready pod -l app=crossplane -n crossplane-system
 
@@ -99,6 +98,11 @@ argo list -n argo
 
 # setup github triggers
 # Make sure to have the eventbus deployed in the namespace.
+helm repo add argo https://argoproj.github.io/argo-helm
+
+helm upgrade -i argo-events argo/argo-events -n argo-events --create-namespace
+
+
 # We will use webhook event-source and sensor to trigger an Argo workflow.
 
 # Set up the operate-workflow-sa service account that the sensor will use
