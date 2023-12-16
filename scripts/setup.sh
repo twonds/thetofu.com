@@ -82,8 +82,9 @@ kubectl patch deployment \
 # Open a port to the argo UI
 # kubectl -n argo port-forward deployment/argo-server 2746:2746
 
+kubectl create rolebinding default-admin --clusterrole=admin --serviceaccount=argo:default --namespace=argo
 
 # kubectl crossplane install provider crossplanecontrib/provider-kubernetes:v0.9.0
-kubectl apply -f api/k8s-provider.yaml
+kubectl apply -f argo/k8s-provider.yaml
 
 # What provider do we need?
